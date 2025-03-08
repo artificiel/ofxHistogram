@@ -7,14 +7,11 @@
 
 using std::cout;
 using std::endl;
-using namespace cv;
-
 
 class ofxHistogram
 {
 public:
-    vector<float> getHistogram(ofxCvGrayscaleImage & img, int numBins);
-    vector<vector<vector<float> > > getHistogram3d(ofxCvColorImage & image, int numBins);
-    vector<vector<vector<float> > > getHistogram3d(ofImage & img, int numBins);
+	std::vector<float> getHistogram(ofxCvGrayscaleImage & img, int numBins);
+	std::vector<std::vector<std::vector<float>>> getHistogram3d(ofxCvColorImage & image, int numBins);
+	std::vector<std::vector<std::vector<float>>> getHistogram3d(ofImage & img, int numBins);
 };
-
