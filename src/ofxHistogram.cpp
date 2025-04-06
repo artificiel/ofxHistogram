@@ -1,28 +1,59 @@
 #include "ofxHistogram.h"
 
-std::vector<float> ofxHistogram::getHistogram(ofxCvGrayscaleImage & img, int numBins) {
-	std::vector<float> histogram;
-	histogram.resize(numBins);
+// std::vector<float> ofxHistogram::getHistogram(ofxCvGrayscaleImage & img, int numBins) {
+// 	std::vector<float> histogram;
+// 	histogram.resize(numBins);
 	
-	CvHistogram* hist;
-	IplImage *iplImage, **plane;
+// 	CvHistogram* hist;
+// 	IplImage *iplImage, **plane;
 	
-	iplImage = img.getCvImage();
-	plane = &iplImage;
+// 	iplImage = img.getCvImage();
+// 	plane = &iplImage;
 	
-	int hist_size[] = { numBins };
-	float range[] = { 0, 256 };
-	float* ranges[] = { range };
-	hist = cvCreateHist( 1, hist_size, CV_HIST_ARRAY, ranges, 1 );
-	cvCalcHist( plane, hist );
-	cvNormalizeHist( hist, 1.0 );
+// 	int hist_size[] = { numBins };
+// 	float range[] = { 0, 256 };
+// 	float* ranges[] = { range };
+// 	hist = cvCreateHist( 1, hist_size, CV_HIST_ARRAY, ranges, 1 );
+// 	cvCalcHist( plane, hist );
+// 	cvNormalizeHist( hist, 1.0 );
 	
-	for (int i=0; i<numBins; i++) {
-		histogram[i] = (float)cvGetReal1D(hist->bins, i);
-	}
-	cvReleaseHist( &hist );
-	return histogram;
+// 	for (int i=0; i<numBins; i++) {
+// 		histogram[i] = (float)cvGetReal1D(hist->bins, i);
+// 	}
+// 	cvReleaseHist( &hist );
+// 	return histogram;
+// }
+
+std::vector<float> ofxHistogram::getHistogram(ofxCvGrayscaleImage &img, int numBins) {
+    std::vector<float> histogram;
+    histogram.resize(numBins);
+    
+    // Convert the image to a cv::Mat (if it's not already)
+    cv::Mat matImage = cv::cvarrToMat(img.getCvImage());
+    
+    // Define the number of bins and the range of pixel values
+    int histSize = numBins;
+    float range[] = {0, 256};  // Pixel range from 0 to 255
+    const float* histRange = {range};
+    
+    // Calculate the histogram
+    cv::Mat hist;
+    cv::calcHist(&matImage, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange, true, false);
+    
+    // Use a fixed normalization factor (e.g., 255.0 for an 8-bit image)
+    const float maxNormalizationValue = 32768.0f;  // Use 255 for 8-bit images
+    
+    // Normalize the histogram such that the maximum value is 1.0
+    hist = hist / maxNormalizationValue;  // Normalize to [0, 1] by dividing by 255.0
+    
+    // Copy the histogram values to the vector
+    for (int i = 0; i < numBins; i++) {
+        histogram[i] = hist.at<float>(i);  // Access histogram values as float
+    }
+
+    return histogram;
 }
+
 
 std::vector<std::vector<std::vector<float> > > ofxHistogram::getHistogram3d(ofImage & img, int numBins) {
 	ofxCvColorImage rgb;
